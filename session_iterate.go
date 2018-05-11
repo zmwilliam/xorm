@@ -56,10 +56,6 @@ func (session *Session) BufferSize(size int) *Session {
 }
 
 func (session *Session) bufferIterate(bean interface{}, fun IterFunc) error {
-	if session.isAutoClose {
-		defer session.Close()
-	}
-
 	var bufferSize = session.statement.bufferSize
 	var limit = session.statement.LimitN
 	if limit > 0 && bufferSize > limit {
@@ -69,6 +65,11 @@ func (session *Session) bufferIterate(bean interface{}, fun IterFunc) error {
 	v := rValue(bean)
 	sliceType := reflect.SliceOf(v.Type())
 	var idx = 0
+	session.autoResetStatement = false
+	defer func() {
+		session.autoResetStatement = true
+	}()
+
 	for {
 		slice := reflect.New(sliceType)
 		if err := session.Limit(bufferSize, start).find(slice.Interface(), bean); err != nil {
