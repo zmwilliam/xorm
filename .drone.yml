@@ -17,6 +17,14 @@ services:
     when:
       event: [ push, tag, pull_request ]
 
+  mysql8:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=xorm_test
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    when:
+      event: [ push, tag, pull_request ]
+
   pgsql:
     image: postgres:9.5
     environment:
@@ -87,6 +95,14 @@ pipeline:
     commands:
       - go test -v -race -db="mysql" -conn_str="root:@tcp(mysql)/xorm_test?charset=utf8mb4" -coverprofile=coverage2.1-1.txt -covermode=atomic
       - go test -v -race -db="mysql" -conn_str="root:@tcp(mysql)/xorm_test?charset=utf8mb4" -cache=true -coverprofile=coverage2.1-2.txt -covermode=atomic
+    when:
+      event: [ push, pull_request ]
+
+  test-mysql8:
+    image: golang:${GO_VERSION}
+    commands:
+      - go test -v -race -db="mysql" -conn_str="root:@tcp(mysql8)/xorm_test" -coverprofile=coverage2-1.txt -covermode=atomic
+      - go test -v -race -db="mysql" -conn_str="root:@tcp(mysql8)/xorm_test" -cache=true -coverprofile=coverage2-2.txt -covermode=atomic
     when:
       event: [ push, pull_request ]
 
