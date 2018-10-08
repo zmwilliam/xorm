@@ -459,7 +459,7 @@ func (db *mysql) GetTables() ([]*core.Table, error) {
 
 func (db *mysql) GetIndexes(tableName string) (map[string]*core.Index, error) {
 	args := []interface{}{db.DbName, tableName}
-	s := "SELECT `INDEX_NAME`, `NON_UNIQUE`, `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?"
+	s := "SELECT `INDEX_NAME`, `NON_UNIQUE`, `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? ORDER BY `SEQ_IN_INDEX` ASC"
 	db.LogSQL(s, args)
 
 	rows, err := db.DB().Query(s, args...)
@@ -551,12 +551,10 @@ func (db *mysql) CreateTableSql(table *core.Table, tableName, storeEngine, chars
 
 	if len(charset) == 0 {
 		charset = db.URI().Charset
-	} 
+	}
 	if len(charset) != 0 {
 		sql += " DEFAULT CHARSET " + charset
 	}
-	
-	
 
 	if db.rowFormat != "" {
 		sql += " ROW_FORMAT=" + db.rowFormat
