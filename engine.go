@@ -1567,20 +1567,20 @@ func (engine *Engine) formatTime(sqlTypeName string, t time.Time) (v interface{}
 		v = s[11:19]
 	case core.Date:
 		v = t.Format("2006-01-02")
-	case core.datetime, core.timestamp:
+	case core.DateTime, core.TimeStamp:
 		if engine.dialect.DBType() == core.ORACLE {
 			v = t
 		} else {
 			v = t.Format("2006-01-02 15:04:05")
 		}
-	case core.timestampz:
-		if engine.dialect.dbtype() == core.mssql {
-			v = t.format("2006-01-02t15:04:05.9999999z07:00")
+	case core.TimeStampz:
+		if engine.dialect.DBType() == core.MSSQL {
+			v = t.Format("2006-01-02T15:04:05.9999999Z07:00")
 		} else {
-			v = t.format(time.rfc3339nano)
+			v = t.Format(time.RFC3339Nano)
 		}
-	case core.bigint, core.int:
-		v = t.unix()
+	case core.BigInt, core.Int:
+		v = t.Unix()
 	default:
 		v = t
 	}
